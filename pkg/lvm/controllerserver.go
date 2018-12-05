@@ -20,15 +20,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/container-storage-interface/spec/lib/go/csi"
+	"github.com/golang/glog"
+	csicommon "github.com/kubernetes-csi/drivers/pkg/csi-common"
+	"github.com/wavezhang/k8s-csi-lvm/pkg/lvmd"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"k8s.io/client-go/kubernetes"
-
-	"github.com/container-storage-interface/spec/lib/go/csi/v0"
-	"github.com/golang/glog"
-	"github.com/kubernetes-csi/drivers/pkg/csi-common"
-	"github.com/wavezhang/k8s-csi-lvm/pkg/lvmd"
 )
 
 const (
@@ -59,9 +58,9 @@ func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 
 	response := &csi.CreateVolumeResponse{
 		Volume: &csi.Volume{
-			Id:            volumeId,
+			VolumeId:      volumeId,
 			CapacityBytes: req.GetCapacityRange().GetRequiredBytes(),
-			Attributes:    req.GetParameters(),
+			VolumeContext: req.GetParameters(),
 		},
 	}
 	return response, nil

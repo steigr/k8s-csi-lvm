@@ -22,19 +22,17 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/container-storage-interface/spec/lib/go/csi"
+	"github.com/golang/glog"
+	csicommon "github.com/kubernetes-csi/drivers/pkg/csi-common"
+	"github.com/wavezhang/k8s-csi-lvm/pkg/lvmd"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/kubernetes/pkg/util/mount"
 	"k8s.io/kubernetes/pkg/volume/util"
-
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
-	"github.com/container-storage-interface/spec/lib/go/csi/v0"
-	"github.com/golang/glog"
-	"github.com/kubernetes-csi/drivers/pkg/csi-common"
-	"github.com/wavezhang/k8s-csi-lvm/pkg/lvmd"
 )
 
 type nodeServer struct {

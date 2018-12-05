@@ -17,11 +17,10 @@ limitations under the License.
 package lvm
 
 import (
+	"github.com/container-storage-interface/spec/lib/go/csi"
 	"github.com/golang/glog"
+	csicommon "github.com/kubernetes-csi/drivers/pkg/csi-common"
 	"k8s.io/client-go/kubernetes"
-	"github.com/container-storage-interface/spec/lib/go/csi/v0"
-
-	"github.com/kubernetes-csi/drivers/pkg/csi-common"
 )
 
 type lvm struct {
@@ -38,7 +37,7 @@ type lvm struct {
 
 var (
 	lvmDriver     *lvm
-	vendorVersion = "0.2.0"
+	vendorVersion = "0.2.99"
 )
 
 func GetLVMDriver(client kubernetes.Interface) *lvm {

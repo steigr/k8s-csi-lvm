@@ -21,7 +21,7 @@ import (
 	"os"
 
 	"github.com/golang/glog"
-	"github.com/wavezhang/k8s-csi-lvm/pkg/lvm"
+	"github.com/steigr/k8s-csi-lvm/pkg/lvm"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
