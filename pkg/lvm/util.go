@@ -3,6 +3,7 @@ package lvm
 import (
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -20,6 +21,10 @@ const (
 )
 
 func getLVMDAddr(client kubernetes.Interface, node string) (string, error) {
+	lvmdAddress := os.Getenv("LVMD_ADDRESS")
+	if len(lvmdAddress) > 0 {
+		return lvmdAddress + ":" + lvmdPort, nil
+	}
 	n, err := getNode(client, node)
 	if err != nil {
 		return "", err

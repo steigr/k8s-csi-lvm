@@ -38,7 +38,8 @@ const (
 
 type controllerServer struct {
 	*csicommon.DefaultControllerServer
-	client kubernetes.Interface
+	client       kubernetes.Interface
+	lvmdEndpoint string
 }
 
 func (cs *controllerServer) CreateVolume(ctx context.Context, req *csi.CreateVolumeRequest) (*csi.CreateVolumeResponse, error) {
@@ -73,15 +74,16 @@ func (cs *controllerServer) DeleteVolume(ctx context.Context, req *csi.DeleteVol
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Failed to getVolumeNode for %v: %v", vid, err))
 	}
 	if node != "" {
-		addr, err := getLVMDAddr(cs.client, node)
-		if err != nil {
-			return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Failed to getLVMDAddr for %v: %v", node, err))
+		if len(cs.lvmdEndpoint) == 0 {
+			cs.lvmdEndpoint, err = getLVMDAddr(cs.client, node)
+			if err != nil {
+				return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Failed to getLVMDAddr for %v: %v", node, err))
+			}
 		}
-
-		conn, err := lvmd.NewLVMConnection(addr, connectTimeout)
+		conn, err := lvmd.NewLVMConnection(cs.lvmdEndpoint, connectTimeout)
 		defer conn.Close()
 		if err != nil {
-			return nil, status.Error(codes.Internal, fmt.Sprintf("Failed to connect to %v: %v", addr, err))
+			return nil, status.Error(codes.Internal, fmt.Sprintf("Failed to connect to %v: %v", cs.lvmdEndpoint, err))
 		}
 
 		if _, err := conn.GetLV(ctx, defVgName, vid); err == nil {

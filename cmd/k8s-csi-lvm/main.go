@@ -32,10 +32,11 @@ func init() {
 }
 
 var (
-	endpoint   = flag.String("endpoint", "unix://tmp/csi.sock", "CSI endpoint")
-	driverName = flag.String("drivername", "k8s-csi-lvm", "name of the driver")
-	nodeID     = flag.String("nodeid", "", "node id")
-	kubeconfig = flag.String("kubeconfig", "", "Absolute path to the kubeconfig file. Required only when running out of cluster.")
+	endpoint     = flag.String("endpoint", "unix://tmp/csi.sock", "CSI endpoint")
+	driverName   = flag.String("drivername", "k8s-csi-lvm", "name of the driver")
+	nodeID       = flag.String("nodeid", "", "node id")
+	kubeconfig   = flag.String("kubeconfig", "", "Absolute path to the kubeconfig file. Required only when running out of cluster.")
+	lvmdEndpoint = flag.String("lvmd-endpoint", "", "Address of local lvmd-instance.")
 )
 
 func main() {
@@ -60,7 +61,7 @@ func handle() {
 	}
 
 	driver := lvm.GetLVMDriver(clientset)
-	driver.Run(*driverName, *nodeID, *endpoint)
+	driver.Run(*driverName, *nodeID, *endpoint, *lvmdEndpoint)
 }
 
 func buildConfig(kubeconfig string) (*rest.Config, error) {

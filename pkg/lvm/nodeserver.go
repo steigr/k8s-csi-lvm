@@ -37,8 +37,9 @@ import (
 
 type nodeServer struct {
 	*csicommon.DefaultNodeServer
-	client kubernetes.Interface
-	nodeID string
+	client       kubernetes.Interface
+	nodeID       string
+	lvmdEndpoint string
 }
 
 func (ns *nodeServer) GetNodeID() string {
@@ -62,15 +63,17 @@ func (ns *nodeServer) createVolume(ctx context.Context, volumeId string) (*v1.Pe
 	cap := pv.Spec.Capacity[v1.ResourceStorage]
 	size := cap.Value()
 
-	addr, err := getLVMDAddr(ns.client, ns.GetNodeID())
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Failed to getLVMDAddr for %v: %v", node, err))
+	if len(ns.lvmdEndpoint) == 0 {
+		ns.lvmdEndpoint, err = getLVMDAddr(ns.client, ns.GetNodeID())
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, fmt.Sprintf("Failed to getLVMDAddr for %v: %v", node, err))
+		}
 	}
 
-	conn, err := lvmd.NewLVMConnection(addr, connectTimeout)
+	conn, err := lvmd.NewLVMConnection(ns.lvmdEndpoint, connectTimeout)
 	defer conn.Close()
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Failed to connect to %v: %v", addr, err))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Failed to connect to %v: %v", ns.lvmdEndpoint, err))
 	}
 
 	resp, err := conn.CreateLV(ctx, &lvmd.LVMOptions{
